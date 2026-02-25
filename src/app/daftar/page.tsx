@@ -88,7 +88,9 @@ export default function DaftarPage() {
     if (!form.bentukUsaha) e.bentukUsaha = "Wajib dipilih";
     if (!form.namaPerusahaan.trim()) e.namaPerusahaan = "Wajib diisi";
     if (!form.npwp.trim()) e.npwp = "Wajib diisi";
+    else if (!/^\d{16}$/.test(form.npwp.replace(/\D/g, ""))) e.npwp = "NPWP harus 16 digit angka";
     if (!form.nib.trim()) e.nib = "Wajib diisi";
+    else if (!/^\d{13}$/.test(form.nib.replace(/\D/g, ""))) e.nib = "NIB harus 13 digit angka";
     if (!form.jenisUsaha) e.jenisUsaha = "Wajib dipilih";
     if (!form.jumlahKaryawan.trim()) e.jumlahKaryawan = "Wajib diisi";
     setErrs(e); return !Object.keys(e).length;
@@ -168,7 +170,7 @@ export default function DaftarPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
+      <div className="max-w-4xl mx-auto px-6 lg:px-10 py-12 md:py-16">
         <div className="mb-10">
           <div className="gold-line mb-5" />
           <h1 className="font-[var(--font-heading)] text-[1.75rem] md:text-[2.25rem] font-semibold text-foreground mb-1">Pendaftaran SBU</h1>
@@ -176,23 +178,23 @@ export default function DaftarPage() {
         </div>
 
         {/* Steps */}
-        <div className="flex items-center gap-0 mb-12">
+        <div className="flex items-center justify-between mb-12 max-w-xl mx-auto">
           {[{n:1,l:"Data Pimpinan",ic:User},{n:2,l:"Data Perusahaan",ic:Building2},{n:3,l:"Upload Berkas",ic:Upload}].map((s,i) => (
             <div key={s.n} className="flex items-center flex-1">
-              <div className="flex items-center gap-3 flex-1">
+              <div className="flex flex-col items-center gap-2 flex-shrink-0">
                 <div className={`step-indicator ${step > s.n ? "completed" : step === s.n ? "active" : "inactive"}`}>
                   {step > s.n ? <Check className="h-4 w-4" /> : <s.ic className="h-4 w-4" />}
                 </div>
-                <span className={`hidden sm:block text-[0.75rem] font-medium ${step >= s.n ? "text-primary" : "text-foreground/25"}`}>{s.l}</span>
+                <span className={`text-[0.7rem] font-medium whitespace-nowrap ${step >= s.n ? "text-primary" : "text-foreground/25"}`}>{s.l}</span>
               </div>
-              {i < 2 && <div className={`flex-1 h-px mx-2 ${step > s.n ? "bg-success" : "bg-foreground/8"}`} />}
+              {i < 2 && <div className={`flex-1 h-px mx-4 mb-6 ${step > s.n ? "bg-success" : "bg-foreground/8"}`} />}
             </div>
           ))}
         </div>
 
         {step === 1 && (
           <div className="space-y-5">
-            <div className="mb-2"><h2 className="text-base font-semibold">Data Pimpinan</h2><p className="text-[0.8125rem] text-foreground/40 font-light">Informasi pimpinan perusahaan</p></div>
+            <div className="mb-2"><h2 className="text-lg mb-1 font-semibold">Data Pimpinan</h2><p className="text-[0.8125rem] text-foreground/40 font-light mb-4">Informasi pimpinan perusahaan</p></div>
             <div><label className="form-label">Nama Lengkap <span className="required">*</span></label><input type="text" className={`form-input ${ec("namaLengkap")}`} placeholder="Nama lengkap pimpinan" value={form.namaLengkap} onChange={e => set("namaLengkap",e.target.value)} />{errs.namaLengkap && <p className="text-xs text-danger mt-1.5 font-medium">{errs.namaLengkap}</p>}</div>
             <div><label className="form-label">Email <span className="required">*</span></label><input type="email" className={`form-input ${ec("email")}`} placeholder="email@perusahaan.com" value={form.email} onChange={e => set("email",e.target.value)} />{errs.email && <p className="text-xs text-danger mt-1.5 font-medium">{errs.email}</p>}</div>
             <div><label className="form-label">Nomor Telepon <span className="required">*</span></label><input type="tel" className={`form-input ${ec("telepon")}`} placeholder="08xxxxxxxxxx" value={form.telepon} onChange={e => set("telepon",e.target.value)} />{errs.telepon && <p className="text-xs text-danger mt-1.5 font-medium">{errs.telepon}</p>}</div>
@@ -226,12 +228,12 @@ export default function DaftarPage() {
 
         {step === 2 && (
           <div className="space-y-5">
-            <div className="mb-2"><h2 className="text-base font-semibold">Data Perusahaan</h2><p className="text-[0.8125rem] text-foreground/40 font-light">Informasi detail perusahaan</p></div>
+            <div className="mb-2"><h2 className="text-lg font-semibold mb-1">Data Perusahaan</h2><p className="text-[0.8125rem] text-foreground/40 font-light mb-4">Informasi detail perusahaan</p></div>
             <div><label className="form-label">Bentuk Usaha <span className="required">*</span></label><select className={`form-select ${ec("bentukUsaha")}`} value={form.bentukUsaha} onChange={e => set("bentukUsaha",e.target.value)}><option value="">Pilih bentuk usaha</option>{BENTUK.map(b => <option key={b} value={b}>{b}</option>)}</select>{errs.bentukUsaha && <p className="text-xs text-danger mt-1.5 font-medium">{errs.bentukUsaha}</p>}</div>
             <div><label className="form-label">Nama Perusahaan <span className="required">*</span></label><input type="text" className={`form-input ${ec("namaPerusahaan")}`} placeholder="PT / CV / UD Nama Perusahaan" value={form.namaPerusahaan} onChange={e => set("namaPerusahaan",e.target.value)} />{errs.namaPerusahaan && <p className="text-xs text-danger mt-1.5 font-medium">{errs.namaPerusahaan}</p>}</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div><label className="form-label">NPWP <span className="required">*</span></label><input type="text" className={`form-input ${ec("npwp")}`} placeholder="00.000.000.0-000.000" value={form.npwp} onChange={e => set("npwp",e.target.value)} />{errs.npwp && <p className="text-xs text-danger mt-1.5 font-medium">{errs.npwp}</p>}</div>
-              <div><label className="form-label">NIB <span className="required">*</span></label><input type="text" className={`form-input ${ec("nib")}`} placeholder="Nomor Induk Berusaha" value={form.nib} onChange={e => set("nib",e.target.value)} />{errs.nib && <p className="text-xs text-danger mt-1.5 font-medium">{errs.nib}</p>}</div>
+              <div><label className="form-label">NPWP <span className="required">*</span></label><input type="text" inputMode="numeric" maxLength={16} className={`form-input ${ec("npwp")}`} placeholder="16 digit angka" value={form.npwp} onChange={e => set("npwp",e.target.value.replace(/\D/g,"").slice(0,16))} />{errs.npwp && <p className="text-xs text-danger mt-1.5 font-medium">{errs.npwp}</p>}</div>
+              <div><label className="form-label">NIB <span className="required">*</span></label><input type="text" inputMode="numeric" maxLength={13} className={`form-input ${ec("nib")}`} placeholder="13 digit angka" value={form.nib} onChange={e => set("nib",e.target.value.replace(/\D/g,"").slice(0,13))} />{errs.nib && <p className="text-xs text-danger mt-1.5 font-medium">{errs.nib}</p>}</div>
             </div>
             <div><label className="form-label">Jenis Usaha <span className="required">*</span></label><select className={`form-select ${ec("jenisUsaha")}`} value={form.jenisUsaha} onChange={e => set("jenisUsaha",e.target.value)}><option value="">Pilih jenis usaha</option>{JENIS.map(j => <option key={j} value={j}>{j}</option>)}</select>{errs.jenisUsaha && <p className="text-xs text-danger mt-1.5 font-medium">{errs.jenisUsaha}</p>}</div>
             <div><label className="form-label">Jumlah Karyawan <span className="required">*</span></label><input type="number" className={`form-input ${ec("jumlahKaryawan")}`} placeholder="Jumlah karyawan" value={form.jumlahKaryawan} onChange={e => set("jumlahKaryawan",e.target.value)} />{errs.jumlahKaryawan && <p className="text-xs text-danger mt-1.5 font-medium">{errs.jumlahKaryawan}</p>}</div>
@@ -240,15 +242,15 @@ export default function DaftarPage() {
 
         {step === 3 && (
           <div className="space-y-4">
-            <div className="mb-2"><h2 className="text-base font-semibold">Upload Berkas</h2><p className="text-[0.8125rem] text-foreground/40 font-light">Format: PDF / JPG / PNG (maks. 5MB)</p></div>
-            <div className="flex items-start gap-3 bg-primary/[0.03] rounded-2xl p-4 mb-2">
+            <div className="mb-2"><h2 className="text-lg mb-1 font-semibold">Upload Berkas</h2><p className="text-[0.8125rem] text-foreground/40 font-light mb-4">Format: PDF / JPG / PNG (maks. 5MB)</p></div>
+            <div className="flex items-start gap-3 bg-primary/[0.03] rounded-2xl p-4 mb-8">
               <AlertCircle className="h-4 w-4 text-primary/50 shrink-0 mt-0.5" />
               <p className="text-[0.75rem] text-foreground/45 leading-relaxed font-light">Berkas online bersifat <strong className="font-semibold text-foreground/60">sementara</strong>. Anda wajib menyerahkan berkas fisik ke kantor KADIN Jateng.</p>
             </div>
             {FILES.map((f,i) => (
               <div key={f.key}>
-                <label className="form-label text-[0.75rem] flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-md bg-primary/[0.06] flex items-center justify-center text-[0.6rem] font-bold text-primary">{String.fromCharCode(97+i)}</span>
+                <label className="form-label text-[0.75rem] flex items-center gap-2 mt-4">
+                  <span className="w-5 h-5 rounded-md bg-primary/[0.06] flex items-center justify-center text-[0.6rem] font-bold text-primary mb-1">{String.fromCharCode(65+i)}</span>
                   {f.label} <span className="required">*</span>
                 </label>
                 <label className={`file-upload ${form.files[f.key]?"has-file":""} ${ec(f.key)}`}>

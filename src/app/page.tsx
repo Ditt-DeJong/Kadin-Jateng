@@ -220,7 +220,7 @@ export default function Home() {
             {requiredDocs.map((doc, i) => (
               <div key={i} className="flex items-start gap-3 group py-3">
                 <span className="shrink-0 w-7 h-7 rounded-lg bg-primary/[0.06] flex items-center justify-center text-[0.7rem] font-bold text-primary group-hover:bg-primary group-hover:text-gold transition-all duration-300">
-                  {String.fromCharCode(97 + i)}
+                  {String.fromCharCode(65 + i)}
                 </span>
                 <span className="text-[0.85rem] text-foreground/55 leading-relaxed group-hover:text-foreground transition-colors duration-300 font-light">
                   {doc}
