@@ -19,15 +19,16 @@ import {
 } from "lucide-react";
 
 interface Registration {
-  code: string;
-  namaLengkap: string;
-  email: string;
-  telepon: string;
-  namaPerusahaan: string;
-  bentukUsaha: string;
-  jenisUsaha: string;
+  kode: string;
+  nama_perusahaan: string;
   status: "on_progress" | "menunggu_pembayaran" | "terverifikasi";
-  createdAt: string;
+  status_label: string;
+  email?: string;
+  payment_status?: string;
+  payment_url?: string;
+  payment_reference?: string;
+  nominal_pembayaran?: string | number;
+  tanggal_bayar?: string | null;
 }
 
 const STATUS_CONFIG = {
@@ -63,33 +64,71 @@ export default function CekStatusPage() {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!kode.trim()) return;
     setLoading(true);
     setNotFound(false);
     setResult(null);
-    setTimeout(() => {
-      const regs = JSON.parse(localStorage.getItem("kadin_registrations") || "{}");
-      const found = regs[kode.trim().toUpperCase()];
-      if (found) setResult(found);
-      else setNotFound(true);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pendaftar/cek-status`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({ kode: kode.trim().toUpperCase() }),
+      });
+      const json = await res.json();
+      
+      if (res.ok && json.success) {
+        setResult(json.data);
+      } else {
+        setNotFound(true);
+      }
+    } catch (error) {
+      console.error("Error fetching status:", error);
+      setNotFound(true);
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
-  const cfg = result ? STATUS_CONFIG[result.status] : null;
+  let cfg = result ? { ...STATUS_CONFIG[result.status] } : null;
+  if (result && cfg) {
+    if (result.status_label) {
+      cfg.label = result.status_label;
+    }
+    if (result.status === "on_progress" && result.status_label.toLowerCase().includes("cetak")) {
+      cfg.icon = FileText;
+      cfg.color = "text-primary";
+      cfg.bg = "bg-primary/8";
+      cfg.desc = "Sertifikat Badan Usaha Anda sedang dalam tahap pencetakan oleh tim KADIN Jawa Tengah.";
+    }
+  }
+
   const StatusIcon = cfg?.icon || Clock;
 
+  const getStepKey = (res: Registration) => {
+    if (res.status === "on_progress") {
+      return res.status_label?.toLowerCase().includes("cetak") ? "cetak" : "verifikasi";
+    }
+    return res.status;
+  };
+
   const steps = [
-    { key: "on_progress", label: "Verifikasi", icon: FileText },
+    { key: "verifikasi", label: "Verifikasi", icon: Clock },
     { key: "menunggu_pembayaran", label: "Pembayaran", icon: CreditCard },
+    { key: "cetak", label: "Proses Cetak", icon: FileText },
     { key: "terverifikasi", label: "Selesai", icon: BadgeCheck },
   ];
 
   const getStepStatus = (k: string) => {
     if (!result) return "inactive";
-    const order = ["on_progress", "menunggu_pembayaran", "terverifikasi"];
-    const ci = order.indexOf(result.status), si = order.indexOf(k);
+    const currentStepKey = getStepKey(result);
+    const order = ["verifikasi", "menunggu_pembayaran", "cetak", "terverifikasi"];
+    const ci = order.indexOf(currentStepKey);
+    const si = order.indexOf(k);
     return si < ci ? "completed" : si === ci ? "active" : "inactive";
   };
 
@@ -179,12 +218,9 @@ export default function CekStatusPage() {
             {/* Info */}
             <div className="space-y-3 py-6 border-t border-b border-foreground/[0.04]">
               {[
-                { l: "Kode Registrasi", v: result.code, mono: true },
-                { l: "Nama Pimpinan", v: result.namaLengkap },
-                { l: "Perusahaan", v: result.namaPerusahaan },
-                { l: "Bentuk Usaha", v: result.bentukUsaha },
-                { l: "Jenis Usaha", v: result.jenisUsaha },
-                { l: "Tanggal Daftar", v: new Date(result.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) },
+                { l: "Kode Registrasi", v: result.kode, mono: true },
+                { l: "Perusahaan", v: result.nama_perusahaan },
+                { l: "Status", v: result.status_label },
               ].map((row, i) => (
                 <div key={i} className="flex justify-between items-center py-1">
                   <span className="text-[0.75rem] text-foreground/35 uppercase tracking-wider">{row.l}</span>
@@ -194,7 +230,7 @@ export default function CekStatusPage() {
             </div>
 
             {/* On Progress instruction */}
-            {result.status === "on_progress" && (
+            {result.status === "on_progress" && !result.status_label?.toLowerCase().includes("cetak") && (
               <div className="bg-gold/[0.04] rounded-2xl p-6">
                 <div className="flex items-start gap-4">
                   <MapPin className="h-5 w-5 text-gold-dark shrink-0 mt-0.5" />
@@ -227,21 +263,70 @@ export default function CekStatusPage() {
               </div>
             )}
 
+            {/* Proses Cetak instruction */}
+            {result.status === "on_progress" && result.status_label?.toLowerCase().includes("cetak") && (
+              <div className="bg-primary/[0.04] rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                  <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-[0.9rem] font-bold mb-2">Sertifikat Sedang Dicetak</h3>
+                    <p className="text-[0.8125rem] text-foreground/45 leading-relaxed mb-4">
+                      Berkas pendaftaran fisik Anda telah diterima. Saat ini <strong className="text-foreground/60">Sertifikat Badan Usaha (SBU)</strong> Anda sedang dalam tahap pencetakan.
+                    </p>
+                    <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl border border-foreground/5">
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="text-[0.8rem] text-foreground/60">Mohon menunggu pembaruan status untuk informasi selanjutnya.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Payment instruction */}
             {result.status === "menunggu_pembayaran" && (
               <div className="bg-primary/[0.02] rounded-2xl p-6">
-                <div className="flex items-start gap-4">
-                  <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="text-[0.9rem] font-bold mb-2">Instruksi Pembayaran</h3>
-                    <p className="text-[0.8125rem] text-foreground/45 leading-relaxed mb-2">
-                      Pendaftaran disetujui. Lakukan pembayaran sesuai informasi yang dikirim ke email 
-                      <strong className="text-foreground/60"> {result.email}</strong>.
-                    </p>
-                    <p className="text-[0.8125rem] text-foreground/45 leading-relaxed">
-                      Setelah pembayaran terkonfirmasi, status berubah menjadi <strong className="text-foreground/60">&quot;Terverifikasi&quot;</strong>.
-                    </p>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start gap-4">
+                    <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="text-[0.9rem] font-bold mb-2">Instruksi Pembayaran</h3>
+                      <p className="text-[0.8125rem] text-foreground/45 leading-relaxed mb-2">
+                        Pendaftaran disetujui. Lakukan pembayaran sesuai informasi yang dikirim ke email 
+                        <strong className="text-foreground/60"> {result.email || "yang terdaftar"}</strong>.
+                      </p>
+                      <p className="text-[0.8125rem] text-foreground/45 leading-relaxed">
+                        Setelah pembayaran terkonfirmasi, status berubah menjadi <strong className="text-foreground/60">&quot;Terverifikasi&quot;</strong>.
+                      </p>
+                    </div>
                   </div>
+
+                  {result.payment_url && (
+                    <div className="mt-4 border-t border-foreground/5 pt-5">
+                      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                        <div>
+                          <p className="text-[0.75rem] text-foreground/40 mb-1">Nominal Pembayaran</p>
+                          <p className="font-bold text-lg text-foreground">
+                            Rp {parseInt(result.nominal_pembayaran?.toString() || "0").toLocaleString("id-ID")}
+                          </p>
+                          {result.payment_reference && (
+                             <p className="text-[0.7rem] text-foreground/35 mt-1 font-mono">
+                               Ref: {result.payment_reference}
+                             </p>
+                          )}
+                        </div>
+                        <a 
+                          href={result.payment_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="btn-primary shrink-0"
+                        >
+                          Bayar Sekarang <ArrowRight className="h-4 w-4 ml-1" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
