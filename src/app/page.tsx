@@ -37,7 +37,7 @@ export default function Home() {
         <div className="absolute top-32 right-20 w-3 h-3 rounded-full bg-gold/30 animate-pulse-slow hidden lg:block" />
         <div className="absolute top-52 right-48 w-2 h-2 rounded-full bg-primary/20 animate-pulse-slow hidden lg:block" />
 
-        <div className="relative max-w-6xl mx-auto px-6 lg:px-8 pt-20 pb-28 md:pt-28 md:pb-36">
+        <div className="relative max-w-6xl mx-auto px-6 lg:px-8 pt-12 pb-28 md:pt-20 md:pb-36">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Left: Text Content */}
             <div className="max-w-xl">
