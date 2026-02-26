@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   User, Building2, Upload, ChevronRight, ChevronLeft, Check,
   Eye, EyeOff, AlertCircle, Copy, CheckCircle2, FileText,
-  PartyPopper, MapPin,
+  PartyPopper, MapPin, Loader2
 } from "lucide-react";
 
 interface FormData {
@@ -60,6 +60,28 @@ export default function DaftarPage() {
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [code, setCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jenisUsahaOptions, setJenisUsahaOptions] = useState<string[]>(JENIS);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/jenis-usaha`, {
+      headers: {
+        "Accept": "application/json"
+      }
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.success && data.data) {
+          setJenisUsahaOptions(data.data.map((item: any) => item.nama));
+        }
+      })
+      .catch(err => console.error("Gagal load jenis usaha:", err));
+  }, []);
 
   const set = useCallback((f: keyof FormData, v: string) => {
     setForm(p => ({ ...p, [f]: v }));
@@ -104,22 +126,55 @@ export default function DaftarPage() {
 
   const next = () => { if (step === 1 && v1()) setStep(2); else if (step === 2 && v2()) setStep(3); };
 
-  const submit = () => {
+  const submit = async () => {
     if (!v3()) return;
-    const c = genCode();
-    const fn: Record<string,string> = {};
-    Object.entries(form.files).forEach(([k,f]) => { if (f) fn[k] = f.name; });
-    const reg = {
-      code: c, namaLengkap: form.namaLengkap, email: form.email, telepon: form.telepon,
-      bentukUsaha: form.bentukUsaha, namaPerusahaan: form.namaPerusahaan,
-      npwp: form.npwp, nib: form.nib, jenisUsaha: form.jenisUsaha,
-      jumlahKaryawan: form.jumlahKaryawan, files: fn,
-      status: "on_progress", createdAt: new Date().toISOString(),
-    };
-    const ex = JSON.parse(localStorage.getItem("kadin_registrations") || "{}");
-    ex[c] = reg;
-    localStorage.setItem("kadin_registrations", JSON.stringify(ex));
-    setCode(c);
+    setIsSubmitting(true);
+    
+    try {
+      const fd = new FormData();
+      fd.append("bentuk_usaha", form.bentukUsaha);
+      fd.append("jenis_usaha", form.jenisUsaha);
+      fd.append("nama_perusahaan", form.namaPerusahaan);
+      fd.append("npwp", form.npwp);
+      fd.append("nib", form.nib);
+      fd.append("nama_lengkap", form.namaLengkap);
+      fd.append("email", form.email);
+      fd.append("telepon", form.telepon);
+      fd.append("password", form.password);
+      fd.append("jumlah_karyawan", form.jumlahKaryawan);
+      
+      let fileIndex = 0;
+      FILES.forEach((f) => {
+        if (form.files[f.key]) {
+          fd.append(`files[${fileIndex}]`, form.files[f.key]!);
+          fd.append(`file_labels[${fileIndex}]`, f.label);
+          fileIndex++;
+        }
+      });
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pendaftar`, {
+        method: "POST",
+        body: fd,
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        setCode(data.data.kode || genCode());
+      } else {
+        alert(data.message || "Gagal melakukan pendaftaran. Periksa kembali form Anda.");
+        if (data.errors) {
+            console.error("Validation errors:", data.errors);
+        }
+      }
+    } catch (e) {
+      alert("Terjadi kesalahan koneksi ke server.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const copyCode = () => { if (code) { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); } };
@@ -235,7 +290,7 @@ export default function DaftarPage() {
               <div><label className="form-label">NPWP <span className="required">*</span></label><input type="text" inputMode="numeric" maxLength={16} className={`form-input ${ec("npwp")}`} placeholder="16 digit angka" value={form.npwp} onChange={e => set("npwp",e.target.value.replace(/\D/g,"").slice(0,16))} />{errs.npwp && <p className="text-xs text-danger mt-1.5 font-medium">{errs.npwp}</p>}</div>
               <div><label className="form-label">NIB <span className="required">*</span></label><input type="text" inputMode="numeric" maxLength={13} className={`form-input ${ec("nib")}`} placeholder="13 digit angka" value={form.nib} onChange={e => set("nib",e.target.value.replace(/\D/g,"").slice(0,13))} />{errs.nib && <p className="text-xs text-danger mt-1.5 font-medium">{errs.nib}</p>}</div>
             </div>
-            <div><label className="form-label">Jenis Usaha <span className="required">*</span></label><select className={`form-select ${ec("jenisUsaha")}`} value={form.jenisUsaha} onChange={e => set("jenisUsaha",e.target.value)}><option value="">Pilih jenis usaha</option>{JENIS.map(j => <option key={j} value={j}>{j}</option>)}</select>{errs.jenisUsaha && <p className="text-xs text-danger mt-1.5 font-medium">{errs.jenisUsaha}</p>}</div>
+            <div><label className="form-label">Jenis Usaha <span className="required">*</span></label><select className={`form-select ${ec("jenisUsaha")}`} value={form.jenisUsaha} onChange={e => set("jenisUsaha",e.target.value)}><option value="">Pilih jenis usaha</option>{jenisUsahaOptions.map(j => <option key={j} value={j}>{j}</option>)}</select>{errs.jenisUsaha && <p className="text-xs text-danger mt-1.5 font-medium">{errs.jenisUsaha}</p>}</div>
             <div><label className="form-label">Jumlah Karyawan <span className="required">*</span></label><input type="number" className={`form-input ${ec("jumlahKaryawan")}`} placeholder="Jumlah karyawan" value={form.jumlahKaryawan} onChange={e => set("jumlahKaryawan",e.target.value)} />{errs.jumlahKaryawan && <p className="text-xs text-danger mt-1.5 font-medium">{errs.jumlahKaryawan}</p>}</div>
           </div>
         )}
@@ -265,7 +320,7 @@ export default function DaftarPage() {
 
         <div className="flex items-center justify-between mt-12 pt-8 border-t border-foreground/[0.04]">
           {step > 1 ? (<button onClick={() => {setErrs({});setStep(step-1);}} className="btn-secondary py-3 px-6 text-[0.875rem]"><ChevronLeft className="h-4 w-4" /> Kembali</button>) : (<Link href="/" className="btn-secondary py-3 px-6 text-[0.875rem]"><ChevronLeft className="h-4 w-4" /> Beranda</Link>)}
-          {step < 3 ? (<button onClick={next} className="btn-primary py-3 px-8 text-[0.875rem]">Selanjutnya <ChevronRight className="h-4 w-4" /></button>) : (<button onClick={submit} className="btn-gold py-3 px-8 text-[0.875rem]"><Check className="h-4 w-4" /> Kirim Pendaftaran</button>)}
+          {step < 3 ? (<button onClick={next} className="btn-primary py-3 px-8 text-[0.875rem]">Selanjutnya <ChevronRight className="h-4 w-4" /></button>) : (<button onClick={submit} disabled={isSubmitting} className="btn-gold py-3 px-8 text-[0.875rem] disabled:opacity-50 flex items-center gap-2">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} {isSubmitting ? "Mengirim..." : "Kirim Pendaftaran"}</button>)}
         </div>
       </div>
     </main>
