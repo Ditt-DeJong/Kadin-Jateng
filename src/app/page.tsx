@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const requiredDocs = [
   "Akte Pendirian & Perubahan Terakhir",
@@ -37,43 +38,109 @@ export default function Home() {
         <div className="absolute top-52 right-48 w-2 h-2 rounded-full bg-primary/20 animate-pulse-slow hidden lg:block" />
 
         <div className="relative max-w-6xl mx-auto px-6 lg:px-8 pt-20 pb-28 md:pt-28 md:pb-36">
-          <div className="max-w-3xl">
-            {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2.5 mb-8">
-              <div className="gold-line" />
-              <span className="text-[0.75rem] font-semibold text-primary/50 uppercase tracking-[0.15em]">
-                KADIN Jawa Tengah
-              </span>
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left: Text Content */}
+            <div className="max-w-xl">
+              {/* Eyebrow */}
+              <div className="inline-flex items-center gap-2.5 mb-8">
+                <div className="gold-line" />
+                <span className="text-[0.75rem] font-semibold text-primary/50 uppercase tracking-[0.15em]">
+                  KADIN Jawa Tengah
+                </span>
+              </div>
+
+              <h1 className="font-[var(--font-heading)] text-[2.75rem] md:text-[3.75rem] lg:text-[4.5rem] font-bold text-primary leading-[1.05] tracking-tight mb-7">
+                Urus Sertifikat
+                <br />
+                <span className="text-gradient-gold">Badan Usaha</span>
+                <br />
+                <span className="text-foreground/80">Dengan Mudah</span>
+              </h1>
+
+              <p className="text-foreground/50 text-[0.9375rem] md:text-base leading-relaxed max-w-xl mb-12 font-light">
+                Daftarkan perusahaan Anda untuk mendapatkan SBU melalui KADIN Jawa Tengah.
+                Proses cepat, terpercaya, dan diakui secara resmi.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <Link
+                  href="/daftar"
+                  className="group btn-gold rounded-full px-8 py-4 text-[0.9375rem]"
+                >
+                  Mulai Pendaftaran
+                  <ChevronRight className="h-4.5 w-4.5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/cek-status"
+                  className="group flex items-center gap-2.5 px-8 py-4 rounded-full text-[0.9375rem] font-semibold text-primary/70 hover:text-primary border-2 border-primary/15 hover:border-primary/30 bg-white hover:bg-primary/[0.03] transition-all duration-300"
+                >
+                  <Search className="h-4.5 w-4.5" />
+                  Cek Status
+                </Link>
+              </div>
             </div>
 
-            <h1 className="font-[var(--font-heading)] text-[2.75rem] md:text-[3.75rem] lg:text-[4.5rem] font-bold text-primary leading-[1.05] tracking-tight mb-7">
-              Urus Sertifikat
-              <br />
-              <span className="text-gradient-gold">Badan Usaha</span>
-              <br />
-              <span className="text-foreground/80">Dengan Mudah</span>
-            </h1>
+            {/* Right: Floating Image Collage */}
+            <div className="hidden lg:block relative h-[400px]">
+              {/* Decorative background glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-gradient-to-br from-gold/[0.08] to-primary/[0.04] blur-[60px] pointer-events-none" />
 
-            <p className="text-foreground/50 text-[0.9375rem] md:text-base leading-relaxed max-w-xl mb-12 font-light">
-              Daftarkan perusahaan Anda untuk mendapatkan SBU melalui KADIN Jawa Tengah.
-              Proses cepat, terpercaya, dan diakui secara resmi.
-            </p>
+              {/* Main Image — largest, center-left */}
+              <div className="hero-entrance hero-entrance-1 absolute top-[20px] left-[20px] w-[300px] h-[200px] z-20">
+                <div className="hero-float hero-float-1 w-full h-full">
+                  <div className="hero-img-wrap relative w-full h-full rounded-2xl overflow-hidden shadow-2xl shadow-primary/15 ring-1 ring-white/60">
+                    <Image
+                      src="/img/image1.jpg"
+                      alt="Penandatanganan kerjasama KADIN Jawa Tengah"
+                      fill
+                      className="object-cover"
+                      sizes="300px"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+                  </div>
+                </div>
+              </div>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <Link
-                href="/daftar"
-                className="group btn-gold rounded-full px-8 py-4 text-[0.9375rem]"
-              >
-                Mulai Pendaftaran
-                <ChevronRight className="h-4.5 w-4.5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/cek-status"
-                className="group flex items-center gap-2.5 px-8 py-4 rounded-full text-[0.9375rem] font-semibold text-primary/70 hover:text-primary transition-colors"
-              >
-                <Search className="h-4.5 w-4.5" />
-                Cek Status
-              </Link>
+              {/* Secondary Image — top right */}
+              <div className="hero-entrance hero-entrance-2 absolute top-[0px] right-[0px] w-[220px] h-[148px] z-30">
+                <div className="hero-float hero-float-2 w-full h-full">
+                  <div className="hero-img-wrap relative w-full h-full rounded-2xl overflow-hidden shadow-xl shadow-primary/10 ring-1 ring-white/60">
+                    <Image
+                      src="/img/image5.jpg"
+                      alt="CJTEC Launching dan Gathering"
+                      fill
+                      className="object-cover"
+                      sizes="220px"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/15 to-transparent" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Tertiary Image — bottom right */}
+              <div className="hero-entrance hero-entrance-3 absolute bottom-[20px] right-[0px] w-[260px] h-[170px] z-10">
+                <div className="hero-float hero-float-3 w-full h-full">
+                  <div className="hero-img-wrap relative w-full h-full rounded-2xl overflow-hidden shadow-xl shadow-primary/10 ring-1 ring-white/60">
+                    <Image
+                      src="/img/image6.jpg"
+                      alt="US-Indonesia Business Forum"
+                      fill
+                      className="object-cover"
+                      sizes="260px"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/15 to-transparent" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative floating elements */}
+              <div className="absolute top-[10px] left-[5px] w-10 h-10 rounded-xl bg-gold/10 backdrop-blur-sm border border-gold/20 animate-float z-0" />
+              <div className="absolute bottom-[40px] left-[0px] w-7 h-7 rounded-lg bg-primary/10 backdrop-blur-sm border border-primary/10 hero-float-reverse z-0" />
+              <div className="absolute top-[150px] right-[20px] w-5 h-5 rounded-full bg-gold/20 animate-pulse-slow z-40" />
+
+              {/* Gold accent bar */}
+              <div className="absolute bottom-[5px] left-[40px] w-14 h-1.5 rounded-full bg-gradient-to-r from-gold to-gold-light opacity-60" />
             </div>
           </div>
         </div>
@@ -156,7 +223,7 @@ export default function Home() {
               <h2 className="font-[var(--font-heading)] text-[2rem] md:text-[2.5rem] font-semibold text-white leading-tight mb-6">
                 Mengapa <span className="text-gold">SBU</span> Penting?
               </h2>
-              <p className="text-white/45 leading-relaxed mb-10 text-[0.9375rem] font-light">
+              <p className="text-white/85 leading-relaxed mb-10 text-[0.9375rem] font-light">
                 Sertifikat Badan Usaha (SBU) adalah pengakuan formal terhadap
                 klasifikasi dan kualifikasi usaha di bidang konstruksi, yang menjadi
                 kunci untuk mengikuti proyek pemerintah maupun swasta.
@@ -171,7 +238,7 @@ export default function Home() {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4">
                     <CheckCircle2 className="h-5 w-5 text-gold shrink-0" />
-                    <span className="text-[0.875rem] text-white/60 font-light">{item}</span>
+                    <span className="text-[0.875rem] text-white/80 font-light">{item}</span>
                   </div>
                 ))}
               </div>
@@ -189,7 +256,7 @@ export default function Home() {
                     key={i}
                     className="flex items-center justify-between gap-8 py-4 border-b border-white/[0.06] last:border-0"
                   >
-                    <span className="text-[0.8125rem] text-white/35 uppercase tracking-wider font-medium">
+                    <span className="text-[0.8125rem] text-white/75 uppercase tracking-wider font-medium">
                       {item.label}
                     </span>
                     <span className="text-[0.9375rem] font-semibold text-white/80">
@@ -252,7 +319,7 @@ export default function Home() {
                 Perusahaan Anda?
               </h2>
 
-              <p className="text-white/40 max-w-md mx-auto mb-10 text-[0.9375rem] leading-relaxed font-light">
+              <p className="text-white/80 max-w-md mx-auto mb-10 text-[0.9375rem] leading-relaxed font-light">
                 Lengkapi formulir online dan dapatkan kode registrasi
                 untuk memantau status pendaftaran SBU Anda.
               </p>

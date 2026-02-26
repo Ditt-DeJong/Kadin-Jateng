@@ -279,3 +279,79 @@ body {
   background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
   border-radius: 100px;
 }
+
+/* ======= HERO IMAGE COLLAGE ======= */
+
+/* Entrance animations — on the OUTER wrapper */
+.hero-entrance {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.hero-entrance-1 {
+  animation: heroEnter1 0.8s cubic-bezier(0.22,1,0.36,1) 0.15s forwards;
+}
+.hero-entrance-2 {
+  animation: heroEnter2 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
+}
+.hero-entrance-3 {
+  animation: heroEnter3 0.8s cubic-bezier(0.22,1,0.36,1) 0.6s forwards;
+}
+
+@keyframes heroEnter1 {
+  from { opacity: 0; transform: translateY(40px) scale(0.93) rotate(-2deg); }
+  to   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+@keyframes heroEnter2 {
+  from { opacity: 0; transform: translateX(30px) translateY(20px) scale(0.93) rotate(2deg); }
+  to   { opacity: 1; transform: translateX(0) translateY(0) scale(1) rotate(0deg); }
+}
+@keyframes heroEnter3 {
+  from { opacity: 0; transform: translateY(50px) translateX(20px) scale(0.93) rotate(1deg); }
+  to   { opacity: 1; transform: translateY(0) translateX(0) scale(1) rotate(0deg); }
+}
+
+/* Float animations — on the INNER wrapper (child of entrance) */
+.hero-float-1 {
+  animation: heroFloat1 7s ease-in-out 1s infinite;
+}
+.hero-float-2 {
+  animation: heroFloat2 9s ease-in-out 1.3s infinite;
+}
+.hero-float-3 {
+  animation: heroFloat3 11s ease-in-out 1.5s infinite;
+}
+
+@keyframes heroFloat1 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-12px) rotate(0.5deg); }
+}
+@keyframes heroFloat2 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-8px) rotate(-0.5deg); }
+}
+@keyframes heroFloat3 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-10px) rotate(0.3deg); }
+}
+
+/* Hover interactions — on the innermost image wrapper */
+.hero-img-wrap {
+  transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.hero-img-wrap:hover {
+  transform: scale(1.04);
+  box-shadow: 0 20px 50px rgba(19,29,128,0.18);
+}
+
+/* Reverse float for decorative elements */
+.hero-float-reverse {
+  animation: heroFloatReverse 9s ease-in-out infinite;
+}
+@keyframes heroFloatReverse {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(10px) rotate(-3deg); }
+}
+
+
+

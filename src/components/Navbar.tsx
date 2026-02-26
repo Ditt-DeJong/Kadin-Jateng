@@ -27,7 +27,7 @@ export default function Navbar() {
             className="object-contain group-hover:scale-105 transition-transform duration-300"
           />
           <div className="flex flex-col leading-none">
-            <span className="text-[1.05rem] font-extrabold tracking-tight text-primary">
+            <span className="text-[1.05rem] font-extrabold tracking-tight text-primary mb-0.5">
               KADIN
             </span>
             <span className="text-[0.55rem] font-medium text-primary/40 tracking-[0.18em] uppercase">
